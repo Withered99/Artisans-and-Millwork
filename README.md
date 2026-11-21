@@ -1,9 +1,34 @@
-# Masonry And Millwork
+# Artisans & Millwork
 
-## Setup
+### Summary
+This is just a small mod I decided to work on adding wooden decoration and more stained glass to the game
 
-For setup instructions, please see the [Fabric Documentation page](https://docs.fabricmc.net/develop/getting-started/creating-a-project#setting-up) related to the IDE that you are using.
+### Current Features
+- Wooden Blocks
+  - Oak Beam
+  - Spruce Beam
+  - Birch Beam
+  - Jungle Beam
+  - Acacia Beam
+  - Dark Oak Beam
+  - Mangrove Beam
+  - Cherry Beam
+  - Bamboo Beam
+  - Crimson Beam
+  - Warped Beam
+- Workstations
+  - Milling Table
 
-## License
+### Planned Features
+- Customizable Stained Glass
+- More wooden blocks
+- More artistic blocks
+- And More!
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+### Supported Versions
+The current plan for supported versions are for 1.21.1 and latest but the support is as follows:
+| Version  | Support |
+| ------------- | ------------- |
+| 1.21.1  | Fully Supported  |
+
+*Note: There are current plans to port to neoforge but only after v1.0.0
