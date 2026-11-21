@@ -2,25 +2,27 @@
 	"schemaVersion": 1,
 	"id": "masonryandmillwork",
 	"version": "${version}",
-	"name": "Masonry And Millwork",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Masonry & Millwork",
+	"description": "A small decorative mod adding more block variants to block sets",
 	"authors": [
-		"Me!"
+		"Withered_"
 	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/masonryandmillwork/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"net.withered.masonryandmillwork.MasonryAndMillwork"
 		],
+        "client": [
+          "net.withered.masonryandmillwork.MasonryAndMillworkClient"
+        ],
 		"fabric-datagen": [
 			"net.withered.masonryandmillwork.MasonryAndMillworkDataGenerator"
-		]
+		],
+        "jei_mod_plugin": [
+          "net.withered.masonryandmillwork.compat.jei.MillingJEIPlugin"
+        ]
 	},
 	"mixins": [
 		"masonryandmillwork.mixins.json"

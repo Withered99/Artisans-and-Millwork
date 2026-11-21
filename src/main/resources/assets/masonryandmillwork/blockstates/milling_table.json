@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "masonryandmillwork:block/milling_table",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "masonryandmillwork:block/milling_table"
+    },
+    "facing=south": {
+      "model": "masonryandmillwork:block/milling_table",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "masonryandmillwork:block/milling_table",
+      "y": 270
+    }
+  }
+}
