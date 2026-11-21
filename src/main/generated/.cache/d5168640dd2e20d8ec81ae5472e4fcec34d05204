@@ -1,0 +1,4 @@
+// 1.21.1	2026-11-20T19:57:03.2256718	Artisans & Millwork/Tags for minecraft:block
+5d87748fd1d7162b8fcee7af290364aca3aa9eec data\minecraft\tags\block\mineable\axe.json
+27d240df73e82c9554f655ac43f53cb45f4d7407 data\minecraft\tags\block\mineable\pickaxe.json
+27d240df73e82c9554f655ac43f53cb45f4d7407 data\minecraft\tags\block\needs_stone_tool.json

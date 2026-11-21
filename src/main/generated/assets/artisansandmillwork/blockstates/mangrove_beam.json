@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "artisansandmillwork:block/mangrove_beam",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "artisansandmillwork:block/mangrove_beam"
+    },
+    "axis=z": {
+      "model": "artisansandmillwork:block/mangrove_beam",
+      "x": 90
+    }
+  }
+}

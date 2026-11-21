@@ -1,0 +1,7 @@
+{
+  "parent": "artisansandmillwork:block/template_beam",
+  "textures": {
+    "end": "minecraft:block/dark_oak_planks",
+    "side": "minecraft:block/dark_oak_planks"
+  }
+}

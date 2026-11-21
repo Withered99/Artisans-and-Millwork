@@ -1,0 +1,10 @@
+{
+  "type": "artisansandmillwork:milling",
+  "ingredient": {
+    "item": "minecraft:crimson_planks"
+  },
+  "result": {
+    "count": 6,
+    "id": "minecraft:crimson_button"
+  }
+}

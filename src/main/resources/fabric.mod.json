@@ -1,31 +1,31 @@
 {
 	"schemaVersion": 1,
-	"id": "masonryandmillwork",
+	"id": "artisansandmillwork",
 	"version": "${version}",
-	"name": "Masonry & Millwork",
+	"name": "Artisans & Millwork",
 	"description": "A small decorative mod adding more block variants to block sets",
 	"authors": [
 		"Withered_"
 	],
 	"license": "MIT",
-	"icon": "assets/masonryandmillwork/icon.png",
+	"icon": "assets/artisansandmillwork/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.withered.masonryandmillwork.MasonryAndMillwork"
+			"net.withered.artisansandmillwork.ArtisansAndMillwork"
 		],
         "client": [
-          "net.withered.masonryandmillwork.MasonryAndMillworkClient"
+          "net.withered.artisansandmillwork.ArtisansAndMillworkClient"
         ],
 		"fabric-datagen": [
-			"net.withered.masonryandmillwork.MasonryAndMillworkDataGenerator"
+			"net.withered.artisansandmillwork.ArtisansAndMillworkDataGenerator"
 		],
         "jei_mod_plugin": [
-          "net.withered.masonryandmillwork.compat.jei.MillingJEIPlugin"
+          "net.withered.artisansandmillwork.compat.jei.MillingJEIPlugin"
         ]
 	},
 	"mixins": [
-		"masonryandmillwork.mixins.json"
+		"artisansandmillwork.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.20.1",

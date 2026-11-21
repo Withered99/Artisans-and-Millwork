@@ -1,0 +1,10 @@
+{
+  "type": "artisansandmillwork:milling",
+  "ingredient": {
+    "tag": "minecraft:oak_logs"
+  },
+  "result": {
+    "count": 4,
+    "id": "minecraft:oak_planks"
+  }
+}

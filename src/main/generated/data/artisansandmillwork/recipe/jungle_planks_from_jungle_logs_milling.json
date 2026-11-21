@@ -1,0 +1,10 @@
+{
+  "type": "artisansandmillwork:milling",
+  "ingredient": {
+    "tag": "minecraft:jungle_logs"
+  },
+  "result": {
+    "count": 4,
+    "id": "minecraft:jungle_planks"
+  }
+}

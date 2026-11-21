@@ -1,0 +1,18 @@
+{
+  "container.artisansandmillwork.milling_table": "Milling Table",
+  "container.artisansandmillwork.milling": "Milling",
+
+  "block.artisansandmillwork.milling_table": "Milling Table",
+
+  "block.artisansandmillwork.oak_beam": "Oak Beam",
+  "block.artisansandmillwork.spruce_beam": "Spruce Beam",
+  "block.artisansandmillwork.birch_beam": "Birch Beam",
+  "block.artisansandmillwork.jungle_beam": "Jungle Beam",
+  "block.artisansandmillwork.acacia_beam": "Acacia Beam",
+  "block.artisansandmillwork.dark_oak_beam": "Dark Oak Beam",
+  "block.artisansandmillwork.mangrove_beam": "Mangrove Beam",
+  "block.artisansandmillwork.cherry_beam": "Cherry Beam",
+  "block.artisansandmillwork.bamboo_beam": "Bamboo Beam",
+  "block.artisansandmillwork.crimson_beam": "Crimson Beam",
+  "block.artisansandmillwork.warped_beam": "Warped Beam"
+}

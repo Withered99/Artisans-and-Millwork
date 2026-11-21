@@ -1,0 +1,7 @@
+{
+  "parent": "artisansandmillwork:block/template_beam",
+  "textures": {
+    "end": "minecraft:block/bamboo_block",
+    "side": "minecraft:block/bamboo_block"
+  }
+}

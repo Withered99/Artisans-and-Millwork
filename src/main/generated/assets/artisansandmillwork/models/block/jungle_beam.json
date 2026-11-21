@@ -1,0 +1,7 @@
+{
+  "parent": "artisansandmillwork:block/template_beam",
+  "textures": {
+    "end": "minecraft:block/jungle_planks",
+    "side": "minecraft:block/jungle_planks"
+  }
+}

@@ -12,12 +12,16 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
 }
 
 fabricApi {
 	configureDataGeneration {
 		client = true
-		modId = "masonryandmillwork"
+		modId = "artisansandmillwork"
 	}
 }
 
@@ -32,6 +36,9 @@ dependencies {
 
     modLocalRuntime("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
     modCompileOnly("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
+
+    modLocalRuntime("net.mezzdev.config:mezz_config-1.21.1-fabric:${mezz_version}")
+    modCompileOnly("net.mezzdev.config:mezz_config-1.21.1-fabric:${mezz_version}")
 }
 
 processResources {

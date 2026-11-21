@@ -1,0 +1,10 @@
+{
+  "type": "artisansandmillwork:milling",
+  "ingredient": {
+    "tag": "minecraft:spruce_logs"
+  },
+  "result": {
+    "count": 4,
+    "id": "minecraft:spruce_planks"
+  }
+}

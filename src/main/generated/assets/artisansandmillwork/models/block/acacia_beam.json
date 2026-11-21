@@ -1,0 +1,7 @@
+{
+  "parent": "artisansandmillwork:block/template_beam",
+  "textures": {
+    "end": "minecraft:block/acacia_planks",
+    "side": "minecraft:block/acacia_planks"
+  }
+}

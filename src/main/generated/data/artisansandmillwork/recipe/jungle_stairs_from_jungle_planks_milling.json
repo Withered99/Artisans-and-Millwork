@@ -1,0 +1,10 @@
+{
+  "type": "artisansandmillwork:milling",
+  "ingredient": {
+    "item": "minecraft:jungle_planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:jungle_stairs"
+  }
+}
