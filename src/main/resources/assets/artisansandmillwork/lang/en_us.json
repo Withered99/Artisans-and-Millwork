@@ -14,5 +14,7 @@
   "block.artisansandmillwork.cherry_beam": "Cherry Beam",
   "block.artisansandmillwork.bamboo_beam": "Bamboo Beam",
   "block.artisansandmillwork.crimson_beam": "Crimson Beam",
-  "block.artisansandmillwork.warped_beam": "Warped Beam"
+  "block.artisansandmillwork.warped_beam": "Warped Beam",
+
+  "itemgroup.artisansandmillwork.artisans_and_millwork": "Artisans & Millwork"
 }
