@@ -1,17 +1,17 @@
 package net.withered.artisansandmillwork.inventory;
 
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.util.Identifier;
 import net.withered.artisansandmillwork.ArtisansAndMillwork;
 
 public class ModMenuTypes {
-    public static final MenuType<MillingTableMenu> MILLING_TABLE = Registry.register(
-            BuiltInRegistries.MENU,
-            ResourceLocation.fromNamespaceAndPath(ArtisansAndMillwork.MOD_ID, "milling_table"),
-            new MenuType<>(MillingTableMenu::new, FeatureFlags.VANILLA_SET)
+    public static final ScreenHandlerType<MillingTableMenu> MILLING_TABLE = Registry.register(
+            Registries.SCREEN_HANDLER,
+            Identifier.of(ArtisansAndMillwork.MOD_ID, "milling_table"),
+            new ScreenHandlerType<>(MillingTableMenu::new, FeatureSet.empty())
     );
 
     public static void init() {}

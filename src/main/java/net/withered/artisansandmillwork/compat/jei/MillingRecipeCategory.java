@@ -9,17 +9,17 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.withered.artisansandmillwork.ArtisansAndMillwork;
 import net.withered.artisansandmillwork.block.ModBlocks;
 import net.withered.artisansandmillwork.item.crafting.MillingTableRecipe;
 
 public class MillingRecipeCategory implements IRecipeCategory<MillingTableRecipe> {
-    public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(ArtisansAndMillwork.MOD_ID, "milling");
+    public static final Identifier UID = Identifier.of(ArtisansAndMillwork.MOD_ID, "milling");
     public static final RecipeType<MillingTableRecipe> MILLING_TYPE = new RecipeType<>(UID, MillingTableRecipe.class);
 
     private final IDrawable icon;
@@ -40,8 +40,8 @@ public class MillingRecipeCategory implements IRecipeCategory<MillingTableRecipe
     }
 
     @Override
-    public Component getTitle() {
-        return Component.translatable("container.artisansandmillwork.milling");
+    public Text getTitle() {
+        return Text.translatable("container.artisansandmillwork.milling");
     }
 
     @Override
@@ -55,7 +55,7 @@ public class MillingRecipeCategory implements IRecipeCategory<MillingTableRecipe
     }
 
     @Override
-    public void draw(MillingTableRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(MillingTableRecipe recipe, IRecipeSlotsView recipeSlotsView, DrawContext guiGraphics, double mouseX, double mouseY) {
         this.slotDrawable.draw(guiGraphics, 17, 8);
         this.arrow.draw(guiGraphics, 41, 9);
         this.outputSlotDrawable.draw(guiGraphics, 73, 4);
@@ -71,8 +71,8 @@ public class MillingRecipeCategory implements IRecipeCategory<MillingTableRecipe
         builder.addSlot(RecipeIngredientRole.INPUT, 18, 9)
                 .addIngredients(recipe.getIngredients().get(0));
 
-        assert Minecraft.getInstance().level != null;
+        assert MinecraftClient.getInstance().world != null;
         builder.addSlot(RecipeIngredientRole.OUTPUT, 78, 9)
-                .addItemStack(recipe.getResultItem(Minecraft.getInstance().level.registryAccess()));
+                .addItemStack(recipe.getResult(MinecraftClient.getInstance().world.getRegistryManager()));
     }
 }

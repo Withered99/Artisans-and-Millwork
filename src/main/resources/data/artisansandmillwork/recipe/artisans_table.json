@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " O ",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:calcite"
+    },
+    "O": {
+      "tag": "c:glass_panes"
+    }
+  },
+  "result": {
+    "id": "artisansandmillwork:artisans_table",
+    "count": 1
+  }
+}

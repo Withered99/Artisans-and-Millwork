@@ -2,37 +2,37 @@ package net.withered.artisansandmillwork.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
-import net.minecraft.core.Direction;
-import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.ItemModelGenerators;
-import net.minecraft.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.data.models.blockstates.PropertyDispatch;
-import net.minecraft.data.models.blockstates.Variant;
-import net.minecraft.data.models.blockstates.VariantProperties;
-import net.minecraft.data.models.model.ModelTemplate;
-import net.minecraft.data.models.model.TextureMapping;
-import net.minecraft.data.models.model.TextureSlot;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.client.BlockStateModelGenerator;
+import net.minecraft.data.client.BlockStateVariant;
+import net.minecraft.data.client.BlockStateVariantMap;
+import net.minecraft.data.client.ItemModelGenerator;
+import net.minecraft.data.client.Model;
+import net.minecraft.data.client.TextureKey;
+import net.minecraft.data.client.TextureMap;
+import net.minecraft.data.client.VariantSettings;
+import net.minecraft.data.client.VariantsBlockStateSupplier;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.withered.artisansandmillwork.ArtisansAndMillwork;
 import net.withered.artisansandmillwork.block.ModBlocks;
 
 import java.util.Optional;
 
 public class ModModelProvider extends FabricModelProvider {
-    private static final ModelTemplate BEAM_TEMPLATE = new ModelTemplate(
-            Optional.of(ResourceLocation.fromNamespaceAndPath(ArtisansAndMillwork.MOD_ID, "block/template_beam")),
+    private static final Model BEAM_TEMPLATE = new Model(
+            Optional.of(Identifier.of(ArtisansAndMillwork.MOD_ID, "block/template_beam")),
             Optional.empty(),
-            TextureSlot.SIDE,
-            TextureSlot.END
+            TextureKey.SIDE,
+            TextureKey.END
     );
-    private static final ModelTemplate BRACE_TEMPLATE = new ModelTemplate(
-            Optional.of(ResourceLocation.fromNamespaceAndPath(ArtisansAndMillwork.MOD_ID, "block/template_brace")),
+    private static final Model BRACE_TEMPLATE = new Model(
+            Optional.of(Identifier.of(ArtisansAndMillwork.MOD_ID, "block/template_brace")),
             Optional.empty(),
-            TextureSlot.SIDE,
-            TextureSlot.END
+            TextureKey.SIDE,
+            TextureKey.END
     );
 
     public ModModelProvider(FabricDataOutput output) {
@@ -40,7 +40,7 @@ public class ModModelProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateBlockStateModels(BlockModelGenerators generators) {
+    public void generateBlockStateModels(BlockStateModelGenerator generators) {
         registerBeam(generators, ModBlocks.OAK_BEAM, Blocks.OAK_PLANKS);
         registerBeam(generators, ModBlocks.SPRUCE_BEAM, Blocks.SPRUCE_PLANKS);
         registerBeam(generators, ModBlocks.BIRCH_BEAM, Blocks.BIRCH_PLANKS);
@@ -54,31 +54,31 @@ public class ModModelProvider extends FabricModelProvider {
         registerBeam(generators, ModBlocks.WARPED_BEAM, Blocks.WARPED_PLANKS);
     }
 
-    private void registerBeam(BlockModelGenerators generators, Block beamBlock, Block textureSource) {
-        TextureMapping textures = new TextureMapping()
-                .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(textureSource))
-                .put(TextureSlot.END, TextureMapping.getBlockTexture(textureSource));
+    private void registerBeam(BlockStateModelGenerator generators, Block beamBlock, Block textureSource) {
+        TextureMap textures = new TextureMap()
+                .put(TextureKey.SIDE, TextureMap.getId(textureSource))
+                .put(TextureKey.END, TextureMap.getId(textureSource));
 
-        ResourceLocation modelId = BEAM_TEMPLATE.create(beamBlock, textures, generators.modelOutput);
+        Identifier modelId = BEAM_TEMPLATE.upload(beamBlock, textures, generators.modelCollector);
 
-        generators.blockStateOutput.accept(
-                MultiVariantGenerator.multiVariant(beamBlock)
-                        .with(PropertyDispatch.property(BlockStateProperties.AXIS)
-                                .select(Direction.Axis.Y, Variant.variant()
-                                        .with(VariantProperties.MODEL, modelId))
-                                .select(Direction.Axis.Z, Variant.variant()
-                                        .with(VariantProperties.MODEL, modelId)
-                                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90))
-                                .select(Direction.Axis.X, Variant.variant()
-                                        .with(VariantProperties.MODEL, modelId)
-                                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90)
-                                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90))
+        generators.blockStateCollector.accept(
+                VariantsBlockStateSupplier.create(beamBlock)
+                        .coordinate(BlockStateVariantMap.create(Properties.AXIS)
+                                .register(Direction.Axis.Y, BlockStateVariant.create()
+                                        .put(VariantSettings.MODEL, modelId))
+                                .register(Direction.Axis.Z, BlockStateVariant.create()
+                                        .put(VariantSettings.MODEL, modelId)
+                                        .put(VariantSettings.X, VariantSettings.Rotation.R90))
+                                .register(Direction.Axis.X, BlockStateVariant.create()
+                                        .put(VariantSettings.MODEL, modelId)
+                                        .put(VariantSettings.X, VariantSettings.Rotation.R90)
+                                        .put(VariantSettings.Y, VariantSettings.Rotation.R90))
                         )
         );
-        generators.delegateItemModel(beamBlock, modelId);
+        generators.registerParentedItemModel(beamBlock, modelId);
     }
 
     @Override
-    public void generateItemModels(ItemModelGenerators itemModelGenerators) {
+    public void generateItemModels(ItemModelGenerator itemModelGenerator) {
     }
 }

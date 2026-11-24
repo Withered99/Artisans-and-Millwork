@@ -5,11 +5,11 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.RecipeManager;
+import net.minecraft.util.Identifier;
 import net.withered.artisansandmillwork.ArtisansAndMillwork;
 import net.withered.artisansandmillwork.block.ModBlocks;
 import net.withered.artisansandmillwork.item.crafting.MillingTableRecipe;
@@ -20,8 +20,8 @@ import java.util.List;
 @JeiPlugin
 public class MillingJEIPlugin implements IModPlugin {
     @Override
-    public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(ArtisansAndMillwork.MOD_ID, "jei_plugin");
+    public Identifier getPluginUid() {
+        return Identifier.of(ArtisansAndMillwork.MOD_ID, "jei_plugin");
     }
 
     @Override
@@ -31,13 +31,13 @@ public class MillingJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        assert Minecraft.getInstance().level != null;
-        RecipeManager recipeManager = Minecraft.getInstance().level.getRecipeManager();
+        assert MinecraftClient.getInstance().world != null;
+        RecipeManager recipeManager = MinecraftClient.getInstance().world.getRecipeManager();
 
         List<MillingTableRecipe> millingRecipes = recipeManager
-                .getAllRecipesFor(ModRecipeTypes.MILLING)
+                .listAllOfType(ModRecipeTypes.MILLING)
                 .stream()
-                .map(RecipeHolder::value)
+                .map(RecipeEntry::value)
                 .toList();
 
         registration.addRecipes(MillingRecipeCategory.MILLING_TYPE, millingRecipes);

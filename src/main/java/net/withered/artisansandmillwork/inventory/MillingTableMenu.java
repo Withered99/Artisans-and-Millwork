@@ -1,25 +1,29 @@
 package net.withered.artisansandmillwork.inventory;
 
 import com.google.common.collect.Lists;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingResultInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
+import net.minecraft.screen.Property;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.world.World;
 import net.withered.artisansandmillwork.block.ModBlocks;
 import net.withered.artisansandmillwork.item.crafting.MillingTableRecipe;
 import net.withered.artisansandmillwork.item.crafting.ModRecipeTypes;
 
 import java.util.List;
 
-public class MillingTableMenu extends AbstractContainerMenu {
+public class MillingTableMenu extends ScreenHandler {
     public static final int INPUT_SLOT = 0;
     public static final int RESULT_SLOT = 1;
     private static final int INV_SLOT_START = 2;
@@ -27,62 +31,62 @@ public class MillingTableMenu extends AbstractContainerMenu {
     private static final int USE_ROW_SLOT_START = 29;
     private static final int USE_ROW_SLOT_END = 38;
 
-    private final ContainerLevelAccess access;
-    private final DataSlot selectedRecipeIndex = DataSlot.standalone();
-    private final Level level;
-    private List<RecipeHolder<MillingTableRecipe>> recipes = Lists.newArrayList();
-    private ItemStack input = ItemStack.EMPTY;
-    long lastSoundTime;
+    private final ScreenHandlerContext context;
+    private final Property selectedRecipe = Property.create();
+    private final World world;
+    private List<RecipeEntry<MillingTableRecipe>> availableRecipes = Lists.newArrayList();
+    private ItemStack inputStack = ItemStack.EMPTY;
+    long lastTakeTime;
     final Slot inputSlot;
-    final Slot resultSlot;
-    Runnable slotUpdateListener = () -> {};
-    public final Container container = new SimpleContainer(1) {
+    final Slot outputSlot;
+    Runnable contentsChangedListener = () -> {};
+    public final Inventory input = new SimpleInventory(1) {
         @Override
-        public void setChanged() {
-            super.setChanged();
-            MillingTableMenu.this.slotsChanged(this);
-            MillingTableMenu.this.slotUpdateListener.run();
+        public void markDirty() {
+            super.markDirty();
+            MillingTableMenu.this.onContentChanged(this);
+            MillingTableMenu.this.contentsChangedListener.run();
         }
     };
-    final ResultContainer resultContainer = new ResultContainer();
+    final CraftingResultInventory output = new CraftingResultInventory();
 
-    public MillingTableMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, ContainerLevelAccess.NULL);
+    public MillingTableMenu(int syncId, PlayerInventory playerInventory) {
+        this(syncId, playerInventory, ScreenHandlerContext.EMPTY);
     }
 
-    public MillingTableMenu(int containerId, Inventory playerInventory, final ContainerLevelAccess access) {
-        super(ModMenuTypes.MILLING_TABLE, containerId);
-        this.access = access;
-        this.level = playerInventory.player.level();
+    public MillingTableMenu(int syncId, PlayerInventory playerInventory, final ScreenHandlerContext context) {
+        super(ModMenuTypes.MILLING_TABLE, syncId);
+        this.context = context;
+        this.world = playerInventory.player.getWorld();
 
-        this.inputSlot = this.addSlot(new Slot(this.container, 0, 20, 33));
-        this.resultSlot = this.addSlot(new Slot(this.resultContainer, 1, 143, 33) {
+        this.inputSlot = this.addSlot(new Slot(this.input, 0, 20, 33));
+        this.outputSlot = this.addSlot(new Slot(this.output, 1, 143, 33) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean canInsert(ItemStack stack) {
                 return false;
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
-                stack.onCraftedBy(player.level(), player, stack.getCount());
-                MillingTableMenu.this.resultContainer.awardUsedRecipes(player, this.getRelevantItems());
-                ItemStack remaining = MillingTableMenu.this.inputSlot.remove(1);
+            public void onTakeItem(PlayerEntity player, ItemStack stack) {
+                stack.onCraftByPlayer(player.getWorld(), player, stack.getCount());
+                MillingTableMenu.this.output.unlockLastRecipe(player, this.getInputStacks());
+                ItemStack remaining = MillingTableMenu.this.inputSlot.takeStack(1);
                 if (!remaining.isEmpty()) {
-                    MillingTableMenu.this.setupResultSlot();
+                    MillingTableMenu.this.populateResult();
                 }
 
-                access.execute((level, pos) -> {
-                    long gameTime = level.getGameTime();
-                    if (MillingTableMenu.this.lastSoundTime != gameTime) {
-                        level.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        MillingTableMenu.this.lastSoundTime = gameTime;
+                context.run((world, pos) -> {
+                    long time = world.getTime();
+                    if (MillingTableMenu.this.lastTakeTime != time) {
+                        world.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        MillingTableMenu.this.lastTakeTime = time;
                     }
                 });
-                super.onTake(player, stack);
+                super.onTakeItem(player, stack);
             }
 
-            private List<ItemStack> getRelevantItems() {
-                return List.of(MillingTableMenu.this.inputSlot.getItem());
+            private List<ItemStack> getInputStacks() {
+                return List.of(MillingTableMenu.this.inputSlot.getStack());
             }
         });
 
@@ -96,139 +100,139 @@ public class MillingTableMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
         }
 
-        this.addDataSlot(this.selectedRecipeIndex);
+        this.addProperty(this.selectedRecipe);
     }
 
     public int getSelectedRecipeIndex() {
-        return this.selectedRecipeIndex.get();
+        return this.selectedRecipe.get();
     }
 
-    public List<RecipeHolder<MillingTableRecipe>> getRecipes() {
-        return this.recipes;
+    public List<RecipeEntry<MillingTableRecipe>> getRecipes() {
+        return this.availableRecipes;
     }
 
     public int getNumRecipes() {
-        return this.recipes.size();
+        return this.availableRecipes.size();
     }
 
     public boolean hasInputItem() {
-        return this.inputSlot.hasItem() && !this.recipes.isEmpty();
+        return this.inputSlot.hasStack() && !this.availableRecipes.isEmpty();
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.MILLING_TABLE);
+    public boolean canUse(PlayerEntity player) {
+        return canUse(this.context, player, ModBlocks.MILLING_TABLE);
     }
 
     @Override
-    public boolean clickMenuButton(Player player, int id) {
-        if (this.isValidRecipeIndex(id)) {
-            this.selectedRecipeIndex.set(id);
-            this.setupResultSlot();
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (this.isInBounds(id)) {
+            this.selectedRecipe.set(id);
+            this.populateResult();
         }
         return true;
     }
 
-    private boolean isValidRecipeIndex(int recipeIndex) {
-        return recipeIndex >= 0 && recipeIndex < this.recipes.size();
+    private boolean isInBounds(int id) {
+        return id >= 0 && id < this.availableRecipes.size();
     }
 
     @Override
-    public void slotsChanged(Container inventory) {
-        ItemStack stack = this.inputSlot.getItem();
-        if (!stack.is(this.input.getItem())) {
-            this.input = stack.copy();
-            this.setupRecipeList(inventory, stack);
+    public void onContentChanged(Inventory inventory) {
+        ItemStack stack = this.inputSlot.getStack();
+        if (!stack.isOf(this.inputStack.getItem())) {
+            this.inputStack = stack.copy();
+            this.updateInput(inventory, stack);
         }
     }
 
-    private void setupRecipeList(Container container, ItemStack stack) {
-        this.recipes.clear();
-        this.selectedRecipeIndex.set(-1);
-        this.resultSlot.set(ItemStack.EMPTY);
+    private void updateInput(Inventory input, ItemStack stack) {
+        this.availableRecipes.clear();
+        this.selectedRecipe.set(-1);
+        this.outputSlot.setStack(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
-            this.recipes = this.level.getRecipeManager().getRecipesFor(
+            this.availableRecipes = this.world.getRecipeManager().getAllMatches(
                     ModRecipeTypes.MILLING,
-                    new SingleRecipeInput(stack),
-                    this.level
+                    new SingleStackRecipeInput(stack),
+                    this.world
             );
         }
     }
 
-    void setupResultSlot() {
-        if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
-            RecipeHolder<MillingTableRecipe> holder = this.recipes.get(this.selectedRecipeIndex.get());
-            ItemStack result = holder.value().assemble(new SingleRecipeInput(this.container.getItem(0)), this.level.registryAccess());
-            if (result.isItemEnabled(this.level.enabledFeatures())) {
-                this.resultContainer.setRecipeUsed(holder);
-                this.resultSlot.set(result);
+    void populateResult() {
+        if (!this.availableRecipes.isEmpty() && this.isInBounds(this.selectedRecipe.get())) {
+            RecipeEntry<MillingTableRecipe> recipeEntry = this.availableRecipes.get(this.selectedRecipe.get());
+            ItemStack result = recipeEntry.value().craft(new SingleStackRecipeInput(this.input.getStack(0)), this.world.getRegistryManager());
+            if (result.isItemEnabled(this.world.getEnabledFeatures())) {
+                this.output.setLastRecipe(recipeEntry);
+                this.outputSlot.setStack(result);
             } else {
-                this.resultSlot.set(ItemStack.EMPTY);
+                this.outputSlot.setStack(ItemStack.EMPTY);
             }
         } else {
-            this.resultSlot.set(ItemStack.EMPTY);
+            this.outputSlot.setStack(ItemStack.EMPTY);
         }
-        this.broadcastChanges();
+        this.sendContentUpdates();
     }
 
     public void registerUpdateListener(Runnable listener) {
-        this.slotUpdateListener = listener;
+        this.contentsChangedListener = listener;
     }
 
     @Override
-    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        return slot.container != this.resultContainer && super.canTakeItemForPickAll(stack, slot);
+    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+        return slot.inventory != this.output && super.canInsertIntoSlot(stack, slot);
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public ItemStack quickMove(PlayerEntity player, int slotIndex) {
         ItemStack copy = ItemStack.EMPTY;
-        Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
-            ItemStack slotStack = slot.getItem();
+        Slot slot = this.slots.get(slotIndex);
+        if (slot != null && slot.hasStack()) {
+            ItemStack slotStack = slot.getStack();
             Item item = slotStack.getItem();
             copy = slotStack.copy();
-            if (index == 1) {
-                item.onCraftedBy(slotStack, player.level(), player);
-                if (!this.moveItemStackTo(slotStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+            if (slotIndex == 1) {
+                item.onCraftByPlayer(slotStack, player.getWorld(), player);
+                if (!this.insertItem(slotStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
                     return ItemStack.EMPTY;
                 }
-                slot.onQuickCraft(slotStack, copy);
-            } else if (index == 0) {
-                if (!this.moveItemStackTo(slotStack, INV_SLOT_START, USE_ROW_SLOT_END, false)) {
+                slot.onQuickTransfer(slotStack, copy);
+            } else if (slotIndex == 0) {
+                if (!this.insertItem(slotStack, INV_SLOT_START, USE_ROW_SLOT_END, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.level.getRecipeManager().getRecipeFor(ModRecipeTypes.MILLING, new SingleRecipeInput(slotStack), this.level).isPresent()) {
-                if (!this.moveItemStackTo(slotStack, 0, 1, false)) {
+            } else if (this.world.getRecipeManager().getFirstMatch(ModRecipeTypes.MILLING, new SingleStackRecipeInput(slotStack), this.world).isPresent()) {
+                if (!this.insertItem(slotStack, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index >= INV_SLOT_START && index < INV_SLOT_END) {
-                if (!this.moveItemStackTo(slotStack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
+            } else if (slotIndex >= INV_SLOT_START && slotIndex < INV_SLOT_END) {
+                if (!this.insertItem(slotStack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index >= USE_ROW_SLOT_START && index < USE_ROW_SLOT_END && !this.moveItemStackTo(slotStack, INV_SLOT_START, INV_SLOT_END, false)) {
+            } else if (slotIndex >= USE_ROW_SLOT_START && slotIndex < USE_ROW_SLOT_END && !this.insertItem(slotStack, INV_SLOT_START, INV_SLOT_END, false)) {
                 return ItemStack.EMPTY;
             }
 
             if (slotStack.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
+                slot.setStack(ItemStack.EMPTY);
             }
 
-            slot.setChanged();
+            slot.markDirty();
             if (slotStack.getCount() == copy.getCount()) {
                 return ItemStack.EMPTY;
             }
 
-            slot.onTake(player, slotStack);
-            this.broadcastChanges();
+            slot.onTakeItem(player, slotStack);
+            this.sendContentUpdates();
         }
         return copy;
     }
 
     @Override
-    public void removed(Player player) {
-        super.removed(player);
-        this.resultContainer.removeItemNoUpdate(1);
-        this.access.execute((level, pos) -> this.clearContainer(player, this.container));
+    public void onClosed(PlayerEntity player) {
+        super.onClosed(player);
+        this.output.removeStack(1);
+        this.context.run((world, pos) -> this.dropInventory(player, this.input));
     }
 }
